@@ -9,7 +9,16 @@
   <body>
     <main>
       <h1>Habit tracker</h1>
-      <input type="text" name="Habit" id="habit" placeholder="Votre habitude" />
+      <form action="post" id="form">
+        <input
+          type="text"
+          name="Habit"
+          id="habit"
+          placeholder="Votre nouvelle routine"
+        />
+        <input type="submit" value="Ajouter une routine" id="addHabitButton" />
+      </form>
+
       <table>
         <thead id="tableDay">
           <th></th>
