@@ -1,57 +1,113 @@
-// Étape 1 - Selection des variables données par le DOM
 let submitButtonDOM = document.querySelector("#addHabitButton");
 let tbodyDOM = document.querySelector("#tableHabit");
 let formDOM = document.querySelector("#form");
 let newHabitDOM = document.querySelector("#habit");
-let dayCell = document.querySelectorAll(".dayCell");
 
-console.log("test", submitButtonDOM, "fdsfq", tbodyDOM);
+function getRandomColor() {
+  const r = Math.floor(Math.random() * 200);
+  const g = Math.floor(Math.random() * 200);
+  const b = Math.floor(Math.random() * 200);
 
-// Étape 2 - Créer la fonction de création de ligne
-function createRow() {
-  console.log("Je suis la fonction createRow et je démare ma tambouille !!!");
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+function saveRows() {
+  const rowsData = [];
+
+  tbodyDOM.querySelectorAll("tr").forEach((row) => {
+    const rowData = {
+      title: row.querySelector("th").textContent,
+      borderColor: row.querySelector("th").style.borderColor,
+      cells: [],
+    };
+
+    row.querySelectorAll("td").forEach((cell) => {
+      rowData.cells.push(cell.style.backgroundColor);
+    });
+
+    rowsData.push(rowData);
+  });
+
+  window.localStorage.setItem("habitRows", JSON.stringify(rowsData));
+}
+
+function loadRows() {
+  const rowsData = JSON.parse(window.localStorage.getItem("habitRows"));
+
+  if (rowsData) {
+    rowsData.forEach((rowData) => {
+      row(rowData);
+    });
+  }
+}
+
+function row(rowData = null) {
   let row = document.createElement("tr");
-  /* row.id = `tr${i}` ; */
-  let rowTitle = document.createElement("th");
-  let value = newHabitDOM.value;
 
+  let rowId = `tr${tbodyDOM.children.length + 1}`;
+  row.id = rowId;
+
+  let tdDelete = document.createElement("td");
+  tdDelete.textContent = "🚽";
+  tdDelete.className = "delete-btn";
+
+  let rowTitle = document.createElement("th");
+  let value = rowData ? rowData.title : newHabitDOM.value;
   rowTitle.textContent = value;
-  console.log("La valeur de value est:", value);
+
+  rowTitle.style.borderColor = rowData ? rowData.borderColor : getRandomColor();
+  row.style.borderColor = rowTitle.style.borderColor;
 
   row.appendChild(rowTitle);
-  tbodyDOM.appendChild(row);
 
   for (let i = 0; i < 7; i++) {
     let cell = document.createElement("td");
     cell.className = "dayCell";
+    cell.style.backgroundColor = rowData ? rowData.cells[i] : "";
+
     row.appendChild(cell);
   }
+
+  tbodyDOM.appendChild(row);
+  row.appendChild(tdDelete);
+}
+
+function createRow() {
+  row();
+  saveRows();
 
   newHabitDOM.value = "";
 }
 
 function applyRandomColor(event) {
   let selectedCell = event.target;
-  console.log(selectedCell);
+  let row = selectedCell.parentNode;
 
-  if (selectedCell.classList.contains("dayCell")) {
-    if (selectedCell.style.backgroundColor === "") {
-      console.log("Je vais appliquer la couleur à la case !");
-      selectedCell.style.backgroundColor = "green";
+  if (event.target.classList.contains("dayCell")) {
+    let currentColor = event.target.style.backgroundColor;
+    if (currentColor === "") {
+      event.target.style.backgroundColor = row.style.borderColor;
     } else {
-      selectedCell.style.backgroundColor = "";
-      console.log("Je vais enlever la couleur de la case !");
+      event.target.style.backgroundColor = "";
     }
+
+    saveRows();
   }
 }
 
-// Étape 3 - Créer une fonction pour sauvegarder les rows dans le local storage
+function deleteRow(event) {
+  if (event.target.classList.contains("delete-btn")) {
+    let row = event.target.closest("tr");
+    row.remove();
 
-// Étape 4 - Voir pour créer la gestion de la couleur (valeur défaut : aléatoire, picker possible)
+    saveRows();
+  }
+}
 
-//DOM CONTENT LOADED
 document.addEventListener("DOMContentLoaded", function () {
-  //Au clic de l'ajout de la nouvelle routine
+  loadRows();
+  tbodyDOM.addEventListener("click", deleteRow);
+
   formDOM.addEventListener("submit", function (event) {
     event.preventDefault();
     createRow();
