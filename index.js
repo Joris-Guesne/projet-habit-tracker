@@ -31,12 +31,16 @@ function createRow() {
 }
 
 function applyRandomColor(event) {
-  if (event.target.classList.contains("dayCells")) {
-    let currentColor = event.target.style.backgroundColor;
-    if (currentColor === "") {
-      event.target.style.backgroundColor = "green";
+  let selectedCell = event.target;
+  console.log(selectedCell);
+
+  if (selectedCell.classList.contains("dayCell")) {
+    if (selectedCell.style.backgroundColor === "") {
+      console.log("Je vais appliquer la couleur à la case !");
+      selectedCell.style.backgroundColor = "green";
     } else {
-      event.target.style.backgroundColor = "";
+      selectedCell.style.backgroundColor = "";
+      console.log("Je vais enlever la couleur de la case !");
     }
   }
 }
@@ -53,7 +57,5 @@ document.addEventListener("DOMContentLoaded", function () {
     createRow();
   });
 
-  dayCell.addEventListener("click", function () {
-    applyRandomColor();
-  });
+  tbodyDOM.addEventListener("click", applyRandomColor);
 });
